@@ -12,21 +12,18 @@ jobs:
       matrix:
         os_name: [ ubuntu ]
         ver:
-          - { onnx: v1.21.0, cmake: 3.28.6, python: 3.8.18, gradle: 8.6, jdk: openjdk-11-jdk }
+          - { onnx: v1.21.1, cmake: 3.28.6, python: 3.10.11, gradle: 8.6, jdk: openjdk-11-jdk }
         list:
           - { os_ver: 20.04, os_id: focal }
           - { os_ver: 22.04, os_id: jammy }
         arch:
           [
             amd64,
-            arm,
             arm64,
-            ppc64le,
           ]
         exclude:
           - list: { os_ver: 20.04, os_id: focal }
             arch: arm64
-          - arch: ppc64le
 
     name: ${{ matrix.os_name }}-${{ matrix.list.os_ver }}-${{ matrix.arch }}
 
@@ -36,7 +33,8 @@ jobs:
       STATIC_PKG_NAME: onnxruntime-${{ matrix.ver.onnx }}-ubuntu-${{ matrix.list.os_ver }}-${{ matrix.arch }}-static
       JAVA_PKG_NAME: onnxruntime-${{ matrix.ver.onnx }}-ubuntu-${{ matrix.list.os_ver }}-${{ matrix.arch }}-java
       CMAKE_NAME: cmake-${{ matrix.ver.cmake }}-${{ matrix.os_name }}-${{ matrix.list.os_ver }}-${{ matrix.arch }}
-      PYTHON_NAME: python-${{ matrix.ver.python }}-${{ matrix.os_name }}-${{ matrix.list.os_ver }}-${{ matrix.arch }}
+      #python-3.10.11-linux-20.04-x64.tar.gz
+      PYTHON_NAME: python-${{ matrix.ver.python }}-linux-${{ matrix.list.os_ver }}-${{ matrix.arch }}
       GRADLE_NAME: gradle-${{ matrix.ver.gradle }}-bin
 
     steps:
@@ -73,11 +71,20 @@ jobs:
           7z x ${{ env.CMAKE_NAME }}.7z -aoa
           rm ${{ env.CMAKE_NAME }}.7z
 
+#      - name: deploy python
+#        run: |
+#          wget https://github.com/benjaminwan/PythonBuilder/releases/download/${{ matrix.ver.python }}/${{ env.PYTHON_NAME }}.7z -O ${{ env.PYTHON_NAME }}.7z
+#          7z x ${{ env.PYTHON_NAME }}.7z -aoa
+#          rm ${{ env.PYTHON_NAME }}.7z
+
       - name: deploy python
+        if: ${{ matrix.list.os_ver == '20.04' }}
         run: |
+          https://github.com/actions/python-versions/releases/download/${{ matrix.ver.python }}-11114431484/python-${{ matrix.ver.python }}-linux-20.04-x64.tar.gz
           wget https://github.com/benjaminwan/PythonBuilder/releases/download/${{ matrix.ver.python }}/${{ env.PYTHON_NAME }}.7z -O ${{ env.PYTHON_NAME }}.7z
           7z x ${{ env.PYTHON_NAME }}.7z -aoa
           rm ${{ env.PYTHON_NAME }}.7z
+
 
       - name: deploy gradle
         run: |
